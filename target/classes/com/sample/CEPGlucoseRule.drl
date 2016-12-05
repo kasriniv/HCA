@@ -1,0 +1,79 @@
+//created on: Nov 23, 2016
+package com.sample
+
+
+declare Patient
+@role( event )
+   // @timestamp( timestamp.getTime() )
+    @expires( 2d )
+end
+
+declare GlucoseEvent
+@role( event )
+    //@timestamp( timestamp.getTime() )
+    @expires( 2d )
+end
+
+rule "CEPGlucoseRule"
+	dialect "mvel"
+	//ruleflow-group "singlealertrule"
+	//no-loop true
+	when
+		p:Patient(avalue:avalue,pcode:code,pid:patientid) from entry-point "PatientStream"
+		
+Number(intValue >= 2) from accumulate ($b: GlucoseEvent( code=="GLUCOSE",rvalue>500,patientid==p.patientid) over window:time(1m) from entry-point "GlucoseStream", count($b))
+
+		//accumulate( $g:GlucoseEvent( code=="GLUCOSE",rvalue>500,patientid==p.patientid) over window:time(1m) from entry-point "GlucoseStream";
+		//$cnt: count(1); $cnt >= 2 )
+		 
+		 //doesnt work from entry-point "GlucoseStream"
+	then
+	System.out.println("Hi from GlucoseAlertRule"+p.patientid+p.avalue);
+	//String tosend ="patientid=1234"+"&"+"alertfor=Glucose";
+	String tosend ="patientid="+p.patientid+"&"+"alertfor=Glucose";
+	
+			channels["outcomes"].send(tosend);		
+end
+
+
+
+
+
+
+rule "countPatientStream"
+
+    when
+        //conditions
+        p:Patient(avalue:avalue,pcode:code,pid:patientid) from entry-point "PatientStream"
+    then
+        //actions
+        System.out.println("found patient,,,,,,"+pid+" aval: "+avalue);
+
+end
+rule "countGlucoseStream"
+
+    when
+        //conditions
+        g:GlucoseEvent(rvalue:rvalue,pcode:code,pid:patientid) from entry-point "GlucoseStream"
+    then
+        //actions
+        System.out.println("found Glucose stream for patient,,,,,,"+pid+" rval: "+rvalue);
+
+end
+
+
+rule "SingleAlertRule"
+	dialect "mvel"
+	//ruleflow-group "singlealertrule"
+	no-loop true
+	lock-on-active true
+	when
+		p:Patient(avalue:avalue,pcode:code,pid:patientid) from entry-point "PatientStream"
+		g:GlucoseEvent( code==pcode,rvalue >avalue,patientid==pid )  from entry-point "GlucoseStream"
+		
+	then
+	//System.out.println("Hello from SingleAlertRule"+p.pid+g.rvalue);
+	//System.out.println("Patient with id :"+p.pid+ "has a real reading of "+g.rvalue+ " that exceeds acceptable value: "+p.avalue);
+		System.out.println("Patient with id :"+g.patientid+ "has a real reading of "+g.rvalue+ " that exceeds acceptable value: "+p.avalue);
+	
+end

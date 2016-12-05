@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kmodule xmlns="http://jboss.org/kie/6.0.0/kmodule">
+    <kbase name="rules" packages="rules">
+        <ksession name="ksession-rules"/>
+    </kbase>
+    <kbase name="dtables" packages="dtables">
+        <ksession name="ksession-dtables"/>
+    </kbase>
+    <kbase name="process" packages="process">
+        <ksession name="ksession-process"/>
+    </kbase>
+    <kbase name="defaultKieBase" default="true" eventProcessingMode="stream" equalsBehavior="identity" declarativeAgenda="disabled" scope="javax.enterprise.context.ApplicationScoped" packages="*">
+    <ksession name="defaultKieSession" type="stateful" default="true" clockType="realtime" beliefSystem="simple" scope="javax.enterprise.context.ApplicationScoped">
+      <fileLogger file="/Volumes/D/temp/kavithadrools.log" threaded="true" interval="10"/>
+    </ksession>
+    <ksession name="defaultStatelessKieSession" type="stateless" default="true" clockType="realtime" beliefSystem="simple" scope="javax.enterprise.context.ApplicationScoped"/>
+  </kbase>
+</kmodule>
