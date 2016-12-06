@@ -65,15 +65,14 @@ end
 rule "SingleAlertRule"
 	dialect "mvel"
 	//ruleflow-group "singlealertrule"
-	no-loop true
-	lock-on-active true
+	
 	when
 		p:Patient(avalue:avalue,pcode:code,pid:patientid) from entry-point "PatientStream"
-		g:GlucoseEvent( code==pcode,rvalue >avalue,patientid==pid )  from entry-point "GlucoseStream"
+		g:GlucoseEvent( code==pcode,rvalue==avalue,patientid==pid )  from entry-point "GlucoseStream"
 		
 	then
-	//System.out.println("Hello from SingleAlertRule"+p.pid+g.rvalue);
-	//System.out.println("Patient with id :"+p.pid+ "has a real reading of "+g.rvalue+ " that exceeds acceptable value: "+p.avalue);
-		System.out.println("Patient with id :"+g.patientid+ "has a real reading of "+g.rvalue+ " that exceeds acceptable value: "+p.avalue);
+	
+		System.out.println("Patient with id :"+g.patientid+ "has a real reading of "+g.rvalue+ " that is the same as acceptable value: "+p.avalue);
+		System.out.println("Patient with id :"+g.patientid +"is eligible for discharge");
 	
 end

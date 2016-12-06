@@ -23,8 +23,8 @@ public class HCARulesTest {
 
     public static final void main(String[] args) {
         try {
-        	//callSingleAlertRule(); //for the first rule
-        	callGlucoseAlertRule(); //for the second rule
+        	callSingleAlertRule(); //for the first rule
+        	//callGlucoseAlertRule(); //for the second rule
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -36,34 +36,41 @@ public class HCARulesTest {
     	 
     	// load up the knowledge base
 	        KieServices ks = KieServices.Factory.get();
- 	    KieContainer kContainer = ks.getKieClasspathContainer();
-     	KieSession kSession = kContainer.newKieSession("ksession-rules");
+	    KieContainer kContainer = ks.getKieClasspathContainer();
+	  KieBaseConfiguration config = KieServices.Factory.get().newKieBaseConfiguration();
+   config.setOption( EventProcessingOption.STREAM );
+   KieBase kBase = kContainer.newKieBase(config);
 
-         // go !
-     	
-     	
-         //for this test
-         GlucoseEvent ge= new GlucoseEvent();
-         ge.setcode("GLUCOSE");
-         ge.setrvalue(700);
-         ge.setpatientid("abc123");
-        // ge.setreadingdate();
-         
-         Patient pa= new Patient();
-         pa.setcode("GLUCOSE");
-         pa.setavalue(200); //this is acceptable level for that code
-         pa.setpatientid("abc123");
-         /*
-         EntryPoint entrypoint = kSession.getEntryPoint("GlucoseStream");
-         entrypoint.insert(ge);
-         EntryPoint entrypoint2 = kSession.getEntryPoint("PatientStream");
-         entrypoint2.insert(pa);
-         */
-         
-        kSession.insert(ge);
-         kSession.insert(pa);
-         kSession.fireAllRules();
-         System.out.println("alldone");
+   KieSessionConfiguration ksConfig = KieServices.Factory.get().newKieSessionConfiguration();
+   KieSession kSession = kBase.newKieSession(ksConfig, null);
+   //NO CHANNEL NEEDED FOR THIS TEST kSession.registerChannel(NotificationChannel.CHANNEL_ID, new NotificationChannel());
+   
+   kSession.addEventListener( new DebugRuleRuntimeEventListener() );
+   KieRuntimeLogger logger = ks.getLoggers().newThreadedFileLogger( kSession, "/Volumes/D/temp/HCACEPStreaming", 1000 );
+
+
+       //for this test
+   EntryPoint ep= kSession.getEntryPoint("PatientStream");
+   EntryPoint ep2= kSession.getEntryPoint("GlucoseStream");
+   
+       GlucoseEvent ge= new GlucoseEvent();
+       ge.setcode("GLUCOSE");
+       ge.setrvalue(800);
+       ge.setpatientid("abc123");
+       
+       
+       Patient p =new Patient();
+       p.setavalue(800);
+       p.setcode("GLUCOSE");
+       p.setpatientid("abc123");
+       
+       ep2.insert(ge);
+       ep.insert(p);
+  
+   
+       kSession.fireAllRules();
+       logger.close();
+       System.out.println("alldone");
      }
      public static void callGlucoseAlertRule(){
     	 
