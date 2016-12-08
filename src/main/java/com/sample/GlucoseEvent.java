@@ -15,6 +15,9 @@ public class GlucoseEvent implements java.io.Serializable {
    @org.kie.api.definition.type.Label(value = "Date of Reading")
    private java.util.Date readingdate;
 
+   public GlucoseEvent(String string, String string2, String string3)
+   {
+   }
    public GlucoseEvent()
    {
    }
@@ -67,5 +70,12 @@ public class GlucoseEvent implements java.io.Serializable {
       this.rvalue = rvalue;
       this.readingdate = readingdate;
    }
-
+   public GlucoseEvent(java.lang.String patientid, java.lang.String code,
+	         int rvalue)
+	   {
+	      this.patientid = patientid;
+	      this.code = code;
+	      this.rvalue = rvalue;
+	      //this.readingdate = readingdate;
+	   }
 }

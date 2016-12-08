@@ -2,6 +2,10 @@ package com.sample;
 
 
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.HashMap;
+
 import org.kie.api.KieBase;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.KieServices;
@@ -23,8 +27,8 @@ public class HCARulesTest {
 
     public static final void main(String[] args) {
         try {
-        	callSingleAlertRule(); //for the first rule
-        	//callGlucoseAlertRule(); //for the second rule
+        	//callSingleAlertRule(); //for the first rule
+        	callGlucoseAlertRule(); //for the second rule
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -92,7 +96,52 @@ public class HCARulesTest {
           //for this test
       EntryPoint ep= kSession.getEntryPoint("PatientStream");
       EntryPoint ep2= kSession.getEntryPoint("GlucoseStream");
+     
+      //read all patients and assert
       
+      //read all readings and assert
+      String readingsFile = "/Volumes/D/rh/bpmworkspace/HCARules/Readings.dat";
+      String PatientsFile = "/Volumes/D/rh/bpmworkspace/HCARules/Patients.dat";
+      BufferedReader br = null;
+      String line = "";
+      String cvsSplitBy = ";";
+
+      try {
+
+    	  br = new BufferedReader(new FileReader(PatientsFile));
+          while ((line = br.readLine()) != null) {
+
+              // use comma as separator
+              String[] patientinfo = line.split(cvsSplitBy);
+
+              System.out.println("Patient: id="+patientinfo[0]+"  code= " + patientinfo[1] + " idealreading=" + patientinfo[2] );
+              Patient p= new Patient();
+              p.setcode(patientinfo[1]);
+              p.setavalue(Integer.parseInt(patientinfo[2]));
+              p.setpatientid(patientinfo[0]);
+              ep.insert(p);
+          }
+           br.close();   
+          br = new BufferedReader(new FileReader(readingsFile));
+          while ((line = br.readLine()) != null) {
+
+              // use comma as separator
+              String[] patientinfo = line.split(cvsSplitBy);
+
+              System.out.println("Patient: id="+patientinfo[0]+"  code= " + patientinfo[1] + " reading=" + patientinfo[2] );
+              GlucoseEvent ge2= new GlucoseEvent();
+              ge2.setcode(patientinfo[1]);
+              ge2.setrvalue(Integer.parseInt(patientinfo[2]));
+              ge2.setpatientid(patientinfo[0]);
+              ep2.insert(ge2);
+
+          }
+          br.close();
+      } 
+      catch (Exception ex){}
+      
+      //END NEW DATA READ
+      /**** data from file isntead
           GlucoseEvent ge= new GlucoseEvent();
           ge.setcode("GLUCOSE");
           ge.setrvalue(800);
@@ -132,33 +181,17 @@ public class HCARulesTest {
           ge4.setrvalue(950);
           ge4.setpatientid("abc123");
           ep2.insert(ge4);
-     
           
-         ///CHANGING TO STREAM ENTRYPOINT
-          /*
-          kSession.insert(ge);
-          kSession.insert(p);
-          kSession.insert(ge2);
-          kSession.insert(p2);
-          ///////////ONLY IF >2 READINGS >500 IN 1 MINUTE..WE ARE SIMULATING THE THIRD ARRIVING LATE
+          
+          ****////data from file instead
+     
          
-          try {
-			Thread.sleep(6);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-         
-         
-         kSession.insert(ge3);
-       kSession.insert(p3);
-       */
-      
           kSession.fireAllRules();
           logger.close();
           System.out.println("alldone");
       }
 
+    
 
 } //end class
 
