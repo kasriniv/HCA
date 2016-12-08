@@ -141,51 +141,7 @@ public class HCARulesTest {
       catch (Exception ex){}
       
       //END NEW DATA READ
-      /**** data from file isntead
-          GlucoseEvent ge= new GlucoseEvent();
-          ge.setcode("GLUCOSE");
-          ge.setrvalue(800);
-          ge.setpatientid("abc123");
-          
-          
-          Patient p =new Patient();
-          p.setavalue(451);
-          p.setcode("GLUCOSE");
-          p.setpatientid("abc123");
-          
-          ep2.insert(ge);
-          ep.insert(p);
-          
-          GlucoseEvent ge2= new GlucoseEvent();
-          ge2.setcode("GLUCOSE");
-          ge2.setrvalue(1000);
-          ge2.setpatientid("abc1232");
-          
-          Patient p2 =new Patient();
-          p2.setavalue(451);
-          p2.setcode("GLUCOSE");
-          p2.setpatientid("abc1232");
-          ep2.insert(ge2);
-          ep.insert(p2);
-          
-          
-          GlucoseEvent ge3= new GlucoseEvent();
-          ge3.setcode("GLUCOSE");
-          ge3.setrvalue(900);
-          ge3.setpatientid("abc1232");
-          ep2.insert(ge3);
-        
-          
-          GlucoseEvent ge4= new GlucoseEvent();
-          ge4.setcode("GLUCOSE");
-          ge4.setrvalue(950);
-          ge4.setpatientid("abc123");
-          ep2.insert(ge4);
-          
-          
-          ****////data from file instead
-     
-         
+      
           kSession.fireAllRules();
           logger.close();
           System.out.println("alldone");
